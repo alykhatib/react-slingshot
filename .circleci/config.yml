@@ -1,0 +1,49 @@
+version: 2.1
+
+# Define the jobs we want to run for this project
+jobs:
+  build:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: npm i
+      - save_cache:
+          paths:
+            - /src/node_modules
+          key: "npm-packages"
+      - run: npm run lint
+  test:
+    docker:
+      - image: circleci/node:13.8.0
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - "npm-packages"
+      - run: npm i
+      - run: npm run test
+
+  analyze:
+    docker:
+      - image: circleci/node:13.8.0
+
+    steps:
+      - restore_cache:
+          keys:
+            - "npm-packages"
+      - checkout
+      - run: npm audit
+
+# Orchestrate our job run sequence
+workflows:
+  build_and_test:
+    jobs:
+      - build
+      - test:
+        requires:
+          build
+      - analyze:
+        requires:
+          test
