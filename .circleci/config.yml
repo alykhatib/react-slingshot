@@ -35,6 +35,7 @@ jobs:
             - "npm-packages"
       - checkout
       - run: npm audit
+      - run: npm audit fix
 
 # Orchestrate our job run sequence
 workflows:
